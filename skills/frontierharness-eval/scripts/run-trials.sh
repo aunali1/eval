@@ -233,7 +233,17 @@ prepare_image() {
     image=$(awk -F'"' '/^docker_image *=/ { print $2; exit }' "$toml")
   fi
   [ -n "$image" ] || return 0
-  retry_transport runta exec "$runtime" -- sh -lc "timeout 1800 docker pull $(shell_quote "$image")"
+  # After a checkpoint restore, dockerd resumes from frozen process state and
+  # can transiently fail pulls (observed: 'invalid reference format' repeated 3x
+  # at 2s retry spacing, succeeding seconds later). Wait for dockerd to answer
+  # first, then retry the pull with wider spacing.
+  retry_transport runta exec "$runtime" -- sh -lc '
+    for i in $(seq 1 24); do docker info >/dev/null 2>&1 && break; sleep 5; done
+    for i in 1 2 3 4 5 6; do
+      timeout 1800 docker pull '"$(shell_quote "$image")"' && exit 0
+      sleep 20
+    done
+    exit 1'
 }
 
 total=0

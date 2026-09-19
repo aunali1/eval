@@ -85,8 +85,14 @@ provider_egress_policy() {
     pypi.org '*.pythonhosted.org' '*.npmjs.org' \
     '*.ubuntu.com' \
     '*.debian.org' '*.pytorch.org' \
-    '*.ecr.aws' '*.cloudfront.net'
+    '*.ecr.aws' '*.cloudfront.net' \
+    docker.io '*.docker.io' docker.com '*.docker.com' ghcr.io
 }
+# Added for this eval (recorded in run.json and disclosed in the report):
+# docker.io/registry-1.docker.io for pier's squid egress-proxy base image and
+# docker.io/ghcr.io-based task images. containerd resolves ubuntu:24.04 via
+# registry-1.docker.io; blobs stream from production.cloudfront.docker.com
+# (a *.docker.com host, NOT cloudfront.net); ghcr.io is GitHub Packages.
 
 # Never fall back to provider-only egress: that turns setup failures into reward 0.
 apply_provider_egress() {

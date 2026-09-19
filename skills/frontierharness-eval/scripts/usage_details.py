@@ -217,6 +217,10 @@ REGISTRY: dict[str, tuple[str, Any]] = {
     "dsh-creator": ("dsh-session.jsonl", _dsh),
     "kimi-code": (".kimi-code/sessions/*/*/agents/main/wire.jsonl", _kimi_code),
     "hermes": ("hermes-calls.jsonl", _hermes),
+    # maki --print --verbose --output-format stream-json emits CC-compatible
+    # envelopes: assistant events carry message.usage (input_tokens fresh-only,
+    # cache_read_input_tokens cached). Verified against fh 2026-09-19 trials.
+    "maki": ("maki.txt", _claude_code),
 }
 
 
